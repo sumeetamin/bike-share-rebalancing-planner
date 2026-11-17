@@ -1,38 +1,20 @@
 # Bike Share Rebalancing Planner
 
-A trip-flow planner that converts station departures/arrivals into capped, explainable vehicle redistribution suggestions.
+A live station snapshot tool that creates transparent donor-to-receiver transfer suggestions from Citi Bike's GBFS data.
 
-> **Portfolio prototype.** Code is provided; no benchmark results are claimed until you run it on the cited data and record the output.
+## Current snapshot demonstration
 
-## Use case
+The public [Citi Bike System Data](https://citibikenyc-marketing.lyft.net/system-data) page publishes trip histories and GBFS station feeds. This run joined 2,519 station records; 2,469 active stations passed the capacity and status checks. Under the configured rule (donors above 80% fill, receivers below 20%, target 50%, maximum 2.5 km straight-line pairing), the greedy nearest-pair heuristic produced 393 transfer pairs covering 2,538 bikes. It left 1,569 donor bikes and 3,926 receiver slots unmatched under the distance constraint.
 
-A trip-flow planner that converts station departures/arrivals into capped, explainable vehicle redistribution suggestions. The command below reads a local data export, applies a transparent baseline, writes holdout or decision-support outputs, and saves the fitted model where applicable.
+This is one live snapshot, not a predictive backtest or operational dispatch plan. The result does not account for truck capacity, roads, traffic, labor, bike type, demand forecasts, or travel time. Recheck status before any operational use. The exact station-level move list is not published; only aggregate counts and feed fingerprint are in [\`reports/benchmark.json\`](reports/benchmark.json).
 
-## Data and provenance
+## Reproduce
 
-[Citi Bike public trip data](https://citibikenyc.com/system-data). A Citi Bike trip CSV with start/end station names. Trips estimate relative flow only; provide current dock inventory and capacity for operational deployment. Dataset files are not bundled. Respect the source terms and cite the dataset when publishing results.
+\`\`\`bash
+python -m pip install -r requirements.txt
+python fetch_data.py
+python main.py --target-fill 0.5 --low-fill 0.2 --high-fill 0.8 \\
+  --max-age-minutes 10 --max-distance-m 2500 --out outputs
+\`\`\`
 
-## Quick start
-
-```bash
-python -m venv .venv
-# Windows: .venv\\Scripts\\activate
-# macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-# Download/prepare the source data locally, then run:
-python main.py --input data/trips.csv --start start_station_name --end end_station_name --capacity 25 --out outputs
-```
-
-## Outputs
-
-The `outputs/` directory contains the model-specific results (metrics and/or ranked CSV) and a serialized estimator where applicable. Outputs are reproducible with the same input, package versions, and random seed. The repository intentionally excludes downloaded data and generated artifacts.
-
-## Evaluation and operating notes
-
-Trip net flow is not live inventory, truck capacity, travel time, or a route optimization. Treat suggestions as a planning baseline, not dispatch instructions.
-
-For a production review, preserve a time-based, untouched holdout; compare against a simple business baseline; inspect calibration and subgroup error; document data lineage; and monitor drift. The included baseline is not a production service.
-
-## License
-
-No code license file is included yet. Third-party datasets remain subject to their original terms.
+The fetcher discovers the current station-information and station-status URLs from GBFS. The planner refuses snapshots older than the configured limit and writes individual moves only to the ignored local \`outputs/\` directory. Citi Bike's data use policy applies to its feeds.
