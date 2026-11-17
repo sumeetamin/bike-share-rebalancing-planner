@@ -1,0 +1,18 @@
+{
+  "source": "Citi Bike live GBFS station information and station status",
+  "source_sha256": "4504457569030a4e6234e696e66f551d8e74de34bd58a1d95d017ce96505e7a2",
+  "snapshot_fetched_at": "2026-11-17T12:48:49.159460+00:00",
+  "station_status_last_updated": "2026-11-17T12:47:58+00:00",
+  "station_status_age_minutes_at_run": 0.86,
+  "stations_in_snapshot": 2519,
+  "active_stations_used": 2469,
+  "donor_stations": 325,
+  "receiver_stations": 592,
+  "transfer_pairs": 393,
+  "bikes_to_move": 2538,
+  "total_straight_line_distance_m": 2591722.1,
+  "unmatched_donor_bikes": 1569,
+  "unmatched_receiver_need": 3926,
+  "policy": "Move stocks above 80% capacity toward stations below 20%, aiming for 50% capacity; greedily pair nearest donor and receiver within 2.5 km.",
+  "limitations": "Single live snapshot heuristic. Straight-line distance is not road distance or truck routing; no trip forecasts, vehicle/truck capacity, labor, time, or counterfactual outcomes are modeled. Recheck station status before any operational decision."
+}
